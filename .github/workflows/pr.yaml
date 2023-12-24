@@ -1,4 +1,5 @@
 name: PR
+
 on:
   pull_request:
     branches:
@@ -17,9 +18,35 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.13.x
-          channel: 'stable'
+          flutter-version: '${{ vars.FLUTTER_VERSION }}'
+          channel: '${{ vars.FLUTTER_CHANNEL }}'
           cache: true
 
       - name: Show Flutter version
-        uses: flutter --version
+        run: flutter --version
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '${{ vars.FLUTTER_VERSION }}'
+          channel: '${{ vars.FLUTTER_CHANNEL }}'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Test
+        run: flutter test
