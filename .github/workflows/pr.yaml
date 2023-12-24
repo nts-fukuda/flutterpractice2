@@ -28,5 +28,25 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Run flutter analyze
+      - name: Analyze
         run: flutter analyze
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '${{ vars.FLUTTER_VERSION }}'
+          channel: '${{ vars.FLUTTER_CHANNEL }}'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Test
+        run: flutter test
