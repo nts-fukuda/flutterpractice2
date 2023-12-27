@@ -32,7 +32,6 @@ jobs:
       - name: Create key properties file
         run: |
           echo 'storeFile=release.keystore' > android/key.properties
-          echo 'serviceAccountFile=service-account-ke.json' >> android/key.properties
           echo 'storePassword=${{ secrets.ANDROID_STORE_PASSWORD }}' >> android/key.properties
           echo 'keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}' >> android/key.properties
           echo 'keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}' >> android/key.properties
@@ -42,7 +41,9 @@ jobs:
         run: flutter build apk --release
 
       - name: Create firebase service account file
-        run: echo -n ${{ secrets.FIREBASE_SERVICE_ACCOUNT }} | base64 -d > android/service-account.json
+        run: |
+          echo -n ${{ secrets.FIREBASE_SERVICE_ACCOUNT }} | base64 -d > android/service-account.json
+          cat android/service-account.json
 
       - name: Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
