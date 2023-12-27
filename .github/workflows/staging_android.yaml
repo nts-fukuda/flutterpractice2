@@ -43,7 +43,7 @@ jobs:
         run: |
           echo -n ${{ secrets.FIREBASE_SERVICE_ACCOUNT }} | base64 -d > android/service-account.json
           echo "FIREBASE_SERVICE_ACCOUNT_CONTENT=`cat android/service-account.json`" >> $GITHUB_ENV
-          echo $FIREBASE_SERVICE_ACCOUNT_CONTENT
+          cat android/service-account.json
 
       - name: Build APK
         run: flutter build apk --release
