@@ -1,0 +1,53 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: '${{ vars.ANDROID_JAVA_VERSION }}'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '${{ vars.FLUTTER_VERSION }}'
+          channel: '${{ vars.FLUTTER_CHANNEL }}'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Create keystore file
+        run: echo -n ${{ secrets.ANDROID_STORE_KEY }} | base64 -d > android/release.keystore
+
+      - name: Create key properties file
+        run: |
+          echo 'storeFile=release.keystore' > android/key.properties
+          echo 'serviceAccountFile=service-account-ke.json' >> android/key.properties
+          echo 'storePassword=${{ secrets.ANDROID_STORE_PASSWORD }}' >> android/key.properties
+          echo 'keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}' >> android/key.properties
+          echo 'keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}' >> android/key.properties
+          cat android/key.properties
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Create firebase service account file
+        run: echo -n ${{ secrets.FIREBASE_SERVICE_ACCOUNT }} | base64 -d > android/service-account.json
+
+      - name: Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
+          serviceCredentialsFileContent: android/service-account.json
+          groups: android-testers
+          file: build/app/outputs/flutter-apk/app-release.apk
