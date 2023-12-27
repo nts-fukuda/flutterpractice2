@@ -40,15 +40,10 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
 
-      - name: Create firebase service account file
-        run: |
-          echo -n ${{ secrets.FIREBASE_SERVICE_ACCOUNT }} | base64 -d > android/service-account.json
-          cat android/service-account.json
-
       - name: Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
         with:
           appId: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
-          serviceCredentialsFileContent: android/service-account.json
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           groups: android-testers
           file: build/app/outputs/flutter-apk/app-release.apk
